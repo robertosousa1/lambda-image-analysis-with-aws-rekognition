@@ -71,7 +71,7 @@ class Handler {
       
       return {
         statusCode: 200,
-        body: `A imagem tem \n `.concat(finalText)
+        body: `A imagem tem \n`.concat(finalText)
       }
     } catch (error) {
       console.log('Error**', error.stack)
