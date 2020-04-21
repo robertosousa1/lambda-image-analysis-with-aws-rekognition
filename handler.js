@@ -2,12 +2,12 @@
 const { get } = require('axios')
 
 class Handler {
-  constructor({ rekoSvc, translateSvc }){
+  constructor({ rekoSvc, translateSvc }) {
     this.rekoSvc = rekoSvc
     this.translateSvc = translateSvc
   }
 
-  async detectImageLabels(buffer){
+  async detectImageLabels (buffer) {
     const result = await this.rekoSvc.detectLabels({
       Image: {
         Bytes: buffer
@@ -17,14 +17,14 @@ class Handler {
     const workingItems = result.Labels
       .filter(({ Confidence }) => Confidence > 80);
 
-      const names = workingItems
-        .map(({ Name }) => Name)
-        .join(' and ')
+    const names = workingItems
+      .map(({ Name }) => Name)
+      .join(' and ')
 
-      return { names, workingItems }
+    return { names, workingItems }
   }
 
-  async translateText(text) {
+  async translateText (text) {
     const params = {
       SourceLanguageCode: 'en',
       TargetLanguageCode: 'pt',
@@ -32,13 +32,13 @@ class Handler {
     }
 
     const { TranslatedText } = await this.translateSvc
-                            .translateText(params)
-                            .promise()
+      .translateText(params)
+      .promise()
 
     return TranslatedText.split(' e ')
   }
 
-  async formatTextResults(texts, workingItems) {
+  async formatTextResults (texts, workingItems) {
     const finalText = []
     for (const indexText in texts) {
       const nameInPortuguese = texts[indexText]
@@ -50,7 +50,7 @@ class Handler {
     return finalText.join('\n')
   }
 
-  async getImageBuffer(imageUrl) {
+  async getImageBuffer (imageUrl) {
     const response = await get(imageUrl, {
       responseType: 'arraybuffer'
     })
@@ -59,7 +59,7 @@ class Handler {
     return buffer
   }
 
-  async main(event) {
+  async main (event) {
     try {
       const { imageUrl } = event.queryStringParameters
       const buffer = await this.getImageBuffer(imageUrl)
@@ -68,7 +68,7 @@ class Handler {
       const texts = await this.translateText(names)
 
       const finalText = await this.formatTextResults(texts, workingItems)
-      
+
       return {
         statusCode: 200,
         body: `A imagem tem \n`.concat(finalText)
